@@ -90,7 +90,7 @@ import:
 
 config:
   http_user: deploy
-  rsync_excludes_extra:
+  deploy_excludes_extra:
     - some-local-file.sh
 
 hosts:
@@ -104,7 +104,7 @@ hosts:
 
 A `deploy.yaml` can only replace a list, not extend it. Every list setting is therefore overridden as
 a whole (copy the default from `recipe/deploy.php` and adjust it), except for the long
-`rsync_excludes`: project-specific excludes go into `rsync_excludes_extra` instead.
+`deploy_excludes`: project-specific excludes go into `deploy_excludes_extra` instead.
 
 Around `deploy:symlink` the tasks from `typo3_before_symlink_tasks` / `typo3_after_symlink_tasks` run
 in order (database backup, folder structure, permissions, `extension:setup`, reference index, language
@@ -114,8 +114,8 @@ tasks, e.g. `typo3:crawler_warmup`. `typo3:fix_folder_structure` runs typo3-cons
 that command (or the one set in `typo3_fix_folder_structure_command`).
 
 Further settings: `typo3_permission_excludes`, `typo3_executable_files`,
-`typo3_fix_folder_structure_command`, `typo3_cache_flush_command`, `rsync_excludes`,
-`rsync_excludes_extra`, plus Deployer's `shared_dirs`/`shared_files`/`keep_releases`.
+`typo3_fix_folder_structure_command`, `typo3_cache_flush_command`, `deploy_excludes`,
+`deploy_excludes_extra`, plus Deployer's `shared_dirs`/`shared_files`/`keep_releases`.
 
 Project-specific tasks that need real logic go into a small PHP file, imported next to the recipe:
 

@@ -32,9 +32,10 @@ set('shared_files', [
     'config/system/settings.php',
 ]);
 
-// Never rsynced to the host - project-specific additions go into rsync_excludes_extra, so a
+// Never rsynced to the host (not named rsync_excludes - contrib/rsync.php uses that name internally
+// for the rendered --exclude options). Project-specific additions go into deploy_excludes_extra, so a
 // deploy.yaml (which can't add() to a list) doesn't have to repeat this whole list
-set('rsync_excludes', [
+set('deploy_excludes', [
     // OS specific files
     '.DS_Store',
     'Thumbs.db',
@@ -74,10 +75,10 @@ set('rsync_excludes', [
     '/playwright/.cache/',
     'npm-debug.log*',
 ]);
-set('rsync_excludes_extra', []);
+set('deploy_excludes_extra', []);
 
 set('rsync', fn () => [
-    'exclude' => array_merge(get('shared_dirs'), get('shared_files'), get('rsync_excludes'), get('rsync_excludes_extra')),
+    'exclude' => array_merge(get('shared_dirs'), get('shared_files'), get('deploy_excludes'), get('deploy_excludes_extra')),
     'exclude-file' => false,
     'include' => [],
     'include-file' => false,
