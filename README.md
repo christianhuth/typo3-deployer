@@ -107,9 +107,11 @@ a whole (copy the default from `recipe/deploy.php` and adjust it), except for th
 `rsync_excludes`: project-specific excludes go into `rsync_excludes_extra` instead.
 
 Around `deploy:symlink` the tasks from `typo3_before_symlink_tasks` / `typo3_after_symlink_tasks` run
-in order (database backup, permissions, `extension:setup`, reference index, language packs, cache
-warmup, page cache flush). Override the lists in the project to add project-specific tasks, e.g.
-`typo3:crawler_warmup` or `typo3:fix_folder_structure`.
+in order (database backup, folder structure, permissions, `extension:setup`, reference index, language
+packs, cache warmup, page cache flush). Override the lists in the project to add project-specific
+tasks, e.g. `typo3:crawler_warmup`. `typo3:fix_folder_structure` runs typo3-console's
+`install:fixfolderstructure` by default and is skipped with a warning if the project doesn't have
+that command (or the one set in `typo3_fix_folder_structure_command`).
 
 Further settings: `typo3_permission_excludes`, `typo3_executable_files`,
 `typo3_fix_folder_structure_command`, `typo3_cache_flush_command`, `rsync_excludes`,

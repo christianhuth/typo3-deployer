@@ -100,7 +100,8 @@ task('deploy:update_code', function () {
 set('typo3_permission_excludes', ['vendor/bin*']);
 set('typo3_executable_files', []);
 
-// TYPO3 core has no fixfolderstructure command, typo3-console's is install:fixfolderstructure
+// TYPO3 core has no fixfolderstructure command, typo3-console's is install:fixfolderstructure - projects
+// without it set their own command or the task is skipped
 set('typo3_fix_folder_structure_command', 'install:fixfolderstructure');
 
 // Only page caches - flushing everything after the symlink would throw away typo3:cache_warmup's work
@@ -111,6 +112,7 @@ set('typo3_before_symlink_tasks', [
     // Backup
     'typo3:database:export',
     // Structure
+    'typo3:fix_folder_structure',
     'typo3:correct_permissions',
     // Extensions and database (extension:setup already applies schema updates)
     'typo3:extension_setup',
@@ -132,6 +134,11 @@ task('typo3:database:export', function () {
 
 desc('Fix folder structure');
 task('typo3:fix_folder_structure', function () {
+    $command = explode(' ', trim(get('typo3_fix_folder_structure_command')))[0];
+    if (!test('{{bin/typo3}} help ' . escapeshellarg($command) . ' >/dev/null 2>&1')) {
+        warning("TYPO3 command {$command} not available, skipping (see typo3_fix_folder_structure_command)");
+        return;
+    }
     run('{{bin/typo3}} {{typo3_fix_folder_structure_command}}');
 });
 
