@@ -21,10 +21,12 @@ set('keep_releases', 5);
 // Updating the reference index takes a long time on bigger projects - 20 instead of 5 minutes
 set('default_timeout', 1200);
 
+// var/log keeps TYPO3's logs across releases instead of losing them with deploy:cleanup
 set('shared_dirs', [
     '{{typo3_webroot}}/fileadmin',
     '{{typo3_webroot}}/typo3temp',
     'var/labels',
+    'var/log',
 ]);
 set('shared_files', [
     'config/system/settings.php',
