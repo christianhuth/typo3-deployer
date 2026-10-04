@@ -9,10 +9,13 @@ declare(strict_types=1);
 //
 // Usage: php -- <option-file> [<webroot>]
 
+// The STDERR constant only exists when php reads the script from a file, not from stdin
+$stderr = fopen('php://stderr', 'w');
+
 $optionFile = $argv[1] ?? '';
 $webroot = $argv[2] ?? 'public';
 if ($optionFile === '') {
-    fwrite(STDERR, "Usage: php -- <option-file> [<webroot>]\n");
+    fwrite($stderr, "Usage: php -- <option-file> [<webroot>]\n");
     exit(1);
 }
 
@@ -29,7 +32,7 @@ foreach ($candidates as [$settingsFile, $additionalFile]) {
     }
 }
 if ($configuration === null) {
-    fwrite(STDERR, 'No TYPO3 configuration found in ' . getcwd() . "\n");
+    fwrite($stderr, 'No TYPO3 configuration found in ' . getcwd() . "\n");
     exit(1);
 }
 
@@ -41,17 +44,17 @@ if (is_file($additionalFile)) {
     try {
         require $additionalFile;
     } catch (\Throwable $e) {
-        fwrite(STDERR, 'Warning: ' . $additionalFile . ' failed (' . $e->getMessage() . "), using " . $settingsFile . " only\n");
+        fwrite($stderr, 'Warning: ' . $additionalFile . ' failed (' . $e->getMessage() . "), using " . $settingsFile . " only\n");
     }
 }
 
 $db = $GLOBALS['TYPO3_CONF_VARS']['DB']['Connections']['Default'] ?? null;
 if (!is_array($db) || ($db['dbname'] ?? '') === '') {
-    fwrite(STDERR, "No DB/Connections/Default configured\n");
+    fwrite($stderr, "No DB/Connections/Default configured\n");
     exit(1);
 }
 if (!in_array($db['driver'] ?? 'mysqli', ['mysqli', 'pdo_mysql'], true)) {
-    fwrite(STDERR, 'Only MySQL/MariaDB is supported, found driver ' . $db['driver'] . "\n");
+    fwrite($stderr, 'Only MySQL/MariaDB is supported, found driver ' . $db['driver'] . "\n");
     exit(1);
 }
 
@@ -65,7 +68,7 @@ foreach (['host' => 'host', 'port' => 'port', 'user' => 'user', 'password' => 'p
 
 umask(0077);
 if (file_put_contents($optionFile, implode("\n", $lines) . "\n") === false) {
-    fwrite(STDERR, 'Could not write ' . $optionFile . "\n");
+    fwrite($stderr, 'Could not write ' . $optionFile . "\n");
     exit(1);
 }
 chmod($optionFile, 0600);
