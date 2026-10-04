@@ -1,0 +1,29 @@
+# Pulls database and fileadmin from the Deployer host "production" via christianhuth/typo3-deployer's
+# sync tasks - host and remote paths come from the project's Deployer config, not from this file.
+# Usage:
+#   1. `ddev auth ssh` (once per ddev session/reboot)
+#   2. `ddev sync` (fresh DB dump) or `ddev sync --use-existing-db-dump`, see .ddev/commands/host/sync
+#
+# Copied from vendor/christianhuth/typo3-deployer/resources/ddev/ - change it there.
+
+auth_command:
+  command: |
+    set -eu -o pipefail
+    ssh-add -l >/dev/null || ( echo "Please 'ddev auth ssh' before running this command." && exit 1 )
+
+db_pull_command:
+  command: |
+    set -eu -o pipefail
+    cd /var/www/html
+    vendor/bin/dep sync:db:download "${DEPLOYER_HOST:-production}" --no-interaction ${USE_EXISTING_DB_DUMP:+--use-existing-db-dump}
+  service: web
+
+files_pull_command:
+  command: |
+    set -eu -o pipefail
+    cd /var/www/html
+    vendor/bin/dep sync:files:download "${DEPLOYER_HOST:-production}" --no-interaction
+  service: web
+
+# Pushing to production is intentionally not configured - too risky to have a one-command path that
+# overwrites live data/files.

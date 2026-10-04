@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+## Description: Pull database and fileadmin from the production server (fresh DB dump by default)
+## Usage: sync [--use-existing-db-dump] [--skip-db] [--skip-files] [--skip-import] [--host=<deployer-host>] [-y|--yes]
+## Example: "ddev sync" or "ddev sync --use-existing-db-dump --skip-files"
+#
+# Copied from vendor/christianhuth/typo3-deployer/resources/ddev/ - change it there.
+
+set -eu -o pipefail
+
+args=(production)
+environment=()
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --use-existing-db-dump) environment+=(USE_EXISTING_DB_DUMP=1) ;;
+    --host=*) environment+=("DEPLOYER_HOST=${1#--host=}") ;;
+    --skip-db|--skip-files|--skip-import) args+=("$1") ;;
+    -y|--yes) args+=(-y) ;;
+    *) echo "Unknown option: $1" >&2; exit 1 ;;
+  esac
+  shift
+done
+if [ ${#environment[@]} -gt 0 ]; then
+  args+=("--environment=$(IFS=,; echo "${environment[*]}")")
+fi
+
+exec ddev pull "${args[@]}"

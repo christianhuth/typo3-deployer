@@ -1,0 +1,17 @@
+{
+    "name": "christianhuth/typo3-deployer",
+    "description": "Deployer recipes for TYPO3: rsync-based deployment and database/fileadmin sync into DDEV",
+    "type": "library",
+    "license": "GPL-2.0-or-later",
+    "keywords": [
+        "TYPO3 CMS",
+        "deployer",
+        "ddev"
+    ],
+    "require": {
+        "php": "^8.1"
+    },
+    "suggest": {
+        "deployer/deployer": "^7.5 - as require-dev, for running dep inside DDEV"
+    }
+}
