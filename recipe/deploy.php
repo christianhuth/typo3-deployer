@@ -8,7 +8,7 @@ use function ChristianHuth\Typo3Deployer\dumpDatabase;
 
 // rsync-based TYPO3 deployment: the project is built (composer install) on the machine running dep and
 // rsynced to the host, so the host needs no git or composer. Everything project-specific (hosts,
-// http_user, bin/php, extra excludes, additional tasks) is configured in the project's deploy.php.
+// http_user, bin/php, extra excludes, additional tasks) is configured in the project's deploy.yaml.
 
 require_once 'recipe/common.php';
 require_once 'contrib/rsync.php';
@@ -30,7 +30,8 @@ set('shared_files', [
     'config/system/settings.php',
 ]);
 
-// Never rsynced to the host - extend with add('rsync_excludes', [...]) in the project
+// Never rsynced to the host - project-specific additions go into rsync_excludes_extra, so a
+// deploy.yaml (which can't add() to a list) doesn't have to repeat this whole list
 set('rsync_excludes', [
     // OS specific files
     '.DS_Store',
@@ -48,6 +49,7 @@ set('rsync_excludes', [
     'auth.json',
     'CLAUDE.md',
     'deploy.php',
+    'deploy.yaml',
     '.hosts.yaml',
     'phpstan.neon',
     'phpunit.xml',
@@ -70,9 +72,10 @@ set('rsync_excludes', [
     '/playwright/.cache/',
     'npm-debug.log*',
 ]);
+set('rsync_excludes_extra', []);
 
 set('rsync', fn () => [
-    'exclude' => array_merge(get('shared_dirs'), get('shared_files'), get('rsync_excludes')),
+    'exclude' => array_merge(get('shared_dirs'), get('shared_files'), get('rsync_excludes'), get('rsync_excludes_extra')),
     'exclude-file' => false,
     'include' => [],
     'include-file' => false,

@@ -34,30 +34,21 @@ cp vendor/christianhuth/typo3-deployer/resources/ddev/providers/production.yaml 
 cp vendor/christianhuth/typo3-deployer/resources/ddev/commands/host/sync .ddev/commands/host/
 ```
 
-Include the recipe in the project's Deployer config and name the host `production`:
-
-```php
-// deploy.php
-namespace Deployer;
-
-require 'vendor/christianhuth/typo3-deployer/recipe/sync.php';
-
-host('production')
-    ->set('hostname', 'example.org')
-    ->set('remote_user', 'deploy')
-    ->set('deploy_path', '~/example.org');
-```
+Include the recipe in the project's `deploy.yaml` and name the host `production`:
 
 ```yaml
-# deploy.yaml
 import:
   - vendor/christianhuth/typo3-deployer/recipe/sync.php
+
 hosts:
   production:
     hostname: example.org
     remote_user: deploy
     deploy_path: '~/example.org'
 ```
+
+`recipe/sync.php` works on top of any Deployer config, e.g. next to Deployer's own `recipe/typo3.php`.
+`recipe/deploy.php` already includes it.
 
 Then:
 
@@ -92,18 +83,28 @@ MySQL option file – never on a command line.
 
 ## Deployment
 
-```php
-// deploy.php
-namespace Deployer;
+```yaml
+# deploy.yaml
+import:
+  - vendor/christianhuth/typo3-deployer/recipe/deploy.php
 
-require 'vendor/christianhuth/typo3-deployer/recipe/deploy.php';
+config:
+  http_user: deploy
+  rsync_excludes_extra:
+    - some-local-file.sh
 
-import('.hosts.yaml');
-
-set('http_user', 'deploy');
-set('bin/php', '/usr/bin/php8.4-cli');
-add('rsync_excludes', ['some-local-file.sh']);
+hosts:
+  production:
+    hostname: example.org
+    remote_user: deploy
+    deploy_path: '~/example.org'
+    # Pick a fixed PHP version where the host offers several
+    bin/php: /usr/bin/php8.4-cli
 ```
+
+A `deploy.yaml` can only replace a list, not extend it. Every list setting is therefore overridden as
+a whole (copy the default from `recipe/deploy.php` and adjust it), except for the long
+`rsync_excludes`: project-specific excludes go into `rsync_excludes_extra` instead.
 
 Around `deploy:symlink` the tasks from `typo3_before_symlink_tasks` / `typo3_after_symlink_tasks` run
 in order (database backup, permissions, `extension:setup`, reference index, language packs, cache
@@ -111,8 +112,16 @@ warmup, page cache flush). Override the lists in the project to add project-spec
 `typo3:crawler_warmup` or `typo3:fix_folder_structure`.
 
 Further settings: `typo3_permission_excludes`, `typo3_executable_files`,
-`typo3_fix_folder_structure_command`, `typo3_cache_flush_command`, `rsync_excludes`, plus Deployer's
-`shared_dirs`/`shared_files`/`keep_releases`.
+`typo3_fix_folder_structure_command`, `typo3_cache_flush_command`, `rsync_excludes`,
+`rsync_excludes_extra`, plus Deployer's `shared_dirs`/`shared_files`/`keep_releases`.
+
+Project-specific tasks that need real logic go into a small PHP file, imported next to the recipe:
+
+```yaml
+import:
+  - vendor/christianhuth/typo3-deployer/recipe/deploy.php
+  - deploy/tasks.php
+```
 
 The backup task `typo3:database:export` writes `shared/dbbackup-<timestamp>.sql.gz`, which
 `ddev sync --use-existing-db-dump` picks up.
