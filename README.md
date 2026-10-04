@@ -87,6 +87,7 @@ MySQL option file – never on a command line.
 | `sync_db_structure_only_tables` | `cache_*`, `cf_*`, `be_sessions`, `fe_sessions`        | Dumped without rows                                  |
 | `sync_files_exclude`            | `_processed_/`, `_temp_/`                              | Not downloaded, TYPO3 regenerates them               |
 | `sync_local_dir`                | `.ddev/.downloads`                                     | Local target                                         |
+| `sync_only`                     | `false`                                                | `true` makes `dep deploy` refuse the host            |
 | `bin/mysqldump`, `bin/mysql`    | auto-detected (`mysqldump`/`mariadb-dump`, …)          | Remote binaries                                      |
 
 ## Deployment

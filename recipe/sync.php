@@ -36,6 +36,14 @@ set('sync_files_exclude', ['_processed_/', '_temp_/']);
 // Local target: db.sql.gz and files/ - the layout "ddev pull" expects
 set('sync_local_dir', '.ddev/.downloads');
 
+// Hosts that are only synced from (e.g. a live site not deployed with Deployer yet) refuse deployments
+set('sync_only', false);
+before('deploy:info', function () {
+    if (get('sync_only')) {
+        throw error('Host {{alias}} is marked sync_only - refusing to deploy to it');
+    }
+});
+
 set('bin/mysqldump', fn () => locateBinary('mysqldump', 'mariadb-dump'));
 set('bin/mysql', fn () => locateBinary('mysql', 'mariadb'));
 
